@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safari -webkit-mask-composite always hurts my work</title>
+  <style>
+    pre > code {
+      white-space: pre-wrap;
+    }
+    #figures {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, 200px);
+      gap: 1rem;
+      justify-content: center;
+    }
+    table#screenshots {
+      border-collapse: collapse;
+    }
+    table#screenshots :is(th, td) {
+      border: 1px solid;
+      border-collapse: collapse;
+    }
+    table#screenshots img {
+      max-height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Safari <code>-webkit-mask-composite</code> issue</h1>
+  </header>
+  <main>
+    <section>
+      <h2>Explanation</h2>
+      <p>use <code>mask-image</code> and <code>mask-composite</code> (<code>-webkit-mask-composite</code>) to implement effect which indicate more contents in scrollable block.</p>
+      <h3>Expected</h3>
+      <p>Show the gradient mask on bottom of scrollable block or no effect if unknown attribute/</p>
+      <h3>Actual</h3>
+      <p>The style cause not only show no effect but make whole block disappear.</p>
+      <h3>Environment</h3>
+      <p>Safari 15.4.0 ~</p>
+    </section>
+    <section>
+      <h2>Playground</h2>
+      <p>Your user agent: <script>document.write(navigator.userAgent);</script></p>
+      <div id="figures">
+        <figure id="fig-1">
+          <figcaption>use <code>mask-image</code> only (2 mask images)</figcaption>
+          <!-- cSpell:disable -->
+          <pre><code>&lt;style&gt;
+figure#fig-1 {
+  font-size: 1rem;
+  border: 3px solid black;
+  border-radius: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%), linear-gradient(to top, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+}
+
+figure#fig-1 > figcaption {
+  text-align: center;
+}
+
+/* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.*/
+&lt;/style&gt;</code></pre>
+          <!-- cSpell:enable -->
+          <style>
+            figure#fig-1 {
+              font-size: 1rem;
+              border: 3px solid black;
+              border-radius: 0.5rem;
+              max-height: 400px;
+              overflow-y: auto;
+              mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%), linear-gradient(to top, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+            }
+
+            figure#fig-1 > figcaption {
+              text-align: center;
+              position: sticky;
+              top: 0;
+              background-color: azure;
+            }
+          </style>
+        </figure>
+        <figure id="fig-2">
+          <figcaption>use <code>mask-image</code> and <code>mask-composite</code> with vendor prefix (2 mask images)</figcaption>
+          <!-- cSpell:disable -->
+          <pre><code>&lt;style&gt;
+figure#fig-2 {
+  font-size: 1rem;
+  border: 3px solid black;
+  border-radius: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black)), -webkit-gradient(linear, left bottom, left top, color-stop(0, rgba(0, 0, 0, 0)), color-stop(0em, black));
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%), linear-gradient(to top, rgba(0, 0, 0, 0) 0, black 0em);
+  mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black)), -webkit-gradient(linear, left bottom, left top, color-stop(0, rgba(0, 0, 0, 0)), color-stop(0em, black));
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%), linear-gradient(to top, rgba(0, 0, 0, 0) 0, black 0em);
+  -webkit-mask-composite: source-in;
+  mask-composite: source-in;
+}
+
+figure#fig-2 > figcaption {
+  text-align: center;
+}
+
+/* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.*/
+&lt;/style&gt;</code></pre>
+          <!-- cSpell:enable -->
+          <style>
+            figure#fig-2 {
+              font-size: 1rem;
+              border: 3px solid black;
+              border-radius: 0.5rem;
+              max-height: 400px;
+              overflow-y: auto;
+              -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black)), -webkit-gradient(linear, left bottom, left top, color-stop(0, rgba(0, 0, 0, 0)), color-stop(0em, black));
+              -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%), linear-gradient(to top, rgba(0, 0, 0, 0) 0, black 0em);
+              mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black)), -webkit-gradient(linear, left bottom, left top, color-stop(0, rgba(0, 0, 0, 0)), color-stop(0em, black));
+              mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%), linear-gradient(to top, rgba(0, 0, 0, 0) 0, black 0em);
+              -webkit-mask-composite: source-in;
+              mask-composite: source-in;
+            }
+
+            figure#fig-2 > figcaption {
+              text-align: center;
+              position: sticky;
+              top: 0;
+              background-color: azure;
+            }
+          </style>
+        </figure>
+        <figure id="fig-3">
+          <figcaption>use <code>mask-image</code> and <code>-webkit-mask-composite</code> (2 mask images)</figcaption>
+          <!-- cSpell:disable -->
+          <pre><code>&lt;style&gt;
+figure#fig-3 {
+  font-size: 1rem;
+  border: 3px solid black;
+  border-radius: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%), linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 0%);
+  -webkit-mask-composite: source-in;
+}
+
+figure#fig-3 > figcaption {
+  text-align: center;
+}
+
+/* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.*/
+&lt;/style&gt;</code></pre>
+          <!-- cSpell:enable -->
+          <style>
+            figure#fig-3 {
+              font-size: 1rem;
+              border: 3px solid black;
+              border-radius: 0.5rem;
+              max-height: 400px;
+              overflow-y: auto;
+              mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%), linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 0%);
+              -webkit-mask-composite: source-in;
+            }
+
+            figure#fig-3 > figcaption {
+              text-align: center;
+              position: sticky;
+              top: 0;
+              background-color: azure;
+            }
+          </style>
+        </figure>
+        <figure id="fig-4">
+          <figcaption>use <code>mask-image</code> and <code>mask-composite</code></figcaption>
+          <!-- cSpell:disable -->
+          <pre><code>&lt;style&gt;
+figure#fig-4 {
+  font-size: 1rem;
+  border: 3px solid black;
+  border-radius: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+}
+
+figure#fig-4 > figcaption {
+  text-align: center;
+}
+
+/* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.*/
+&lt;/style&gt;</code></pre>
+          <!-- cSpell:enable -->
+          <style>
+            figure#fig-4 {
+              font-size: 1rem;
+              border: 3px solid black;
+              border-radius: 0.5rem;
+              max-height: 400px;
+              overflow-y: auto;
+              mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+            }
+
+            figure#fig-4 > figcaption {
+              text-align: center;
+              position: sticky;
+              top: 0;
+              background-color: azure;
+            }
+          </style>
+        </figure>
+        <figure id="fig-5">
+          <figcaption>use <code>mask-image</code> and <code>mask-composite</code></figcaption>
+          <!-- cSpell:disable -->
+          <pre><code>&lt;style&gt;
+figure#fig-5 {
+  font-size: 1rem;
+  border: 3px solid black;
+  border-radius: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+
+  -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black), color-stop(100%, rgba(0, 0, 0, 0)));
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%, rgba(0, 0, 0, 0) 100%);
+  mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black), color-stop(100%, rgba(0, 0, 0, 0)));
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: source-in;
+}
+
+figure#fig-5 > figcaption {
+  text-align: center;
+}
+
+/* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.*/
+&lt;/style&gt;</code></pre>
+          <!-- cSpell:enable -->
+          <style>
+            figure#fig-5 {
+              font-size: 1rem;
+              border: 3px solid black;
+              border-radius: 0.5rem;
+              max-height: 400px;
+              overflow-y: auto;
+              -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black), color-stop(100%, rgba(0, 0, 0, 0)));
+              -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%, rgba(0, 0, 0, 0) 100%);
+              mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0)), color-stop(50%, black), color-stop(100%, rgba(0, 0, 0, 0)));
+              mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, black 50%, rgba(0, 0, 0, 0) 100%);
+              -webkit-mask-composite: source-in;
+              mask-composite: source-in;
+            }
+
+            figure#fig-5 > figcaption {
+              text-align: center;
+              position: sticky;
+              top: 0;
+              background-color: azure;
+            }
+          </style>
+        </figure>
+        <figure id="fig-6">
+          <figcaption>use <code>mask-image</code> and <code>-webkit-mask-composite</code></figcaption>
+          <!-- cSpell:disable -->
+          <pre><code>&lt;style&gt;
+figure#fig-6 {
+  font-size: 1rem;
+  border: 3px solid black;
+  border-radius: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-composite: source-in;
+}
+
+figure#fig-6 > figcaption {
+  text-align: center;
+}
+
+/* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.*/
+&lt;/style&gt;</code></pre>
+          <!-- cSpell:enable -->
+          <style>
+            figure#fig-6 {
+              font-size: 1rem;
+              border: 3px solid black;
+              border-radius: 0.5rem;
+              max-height: 400px;
+              overflow-y: auto;
+              mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+              -webkit-mask-composite: source-in;
+            }
+
+            figure#fig-6 > figcaption {
+              text-align: center;
+              position: sticky;
+              top: 0;
+              background-color: azure;
+            }
+          </style>
+        </figure>
+      </div>
+    </section>
+    <section>
+      <h2>Screenshot</h2>
+      <table id="screenshots">
+        <thead>
+          <tr>
+            <th>\</th>
+            <th>screenshot</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>chromium</td>
+            <td><img src="chromium.jpg" alt="screenshot the playground by chromium"></td>
+          </tr>
+          <tr>
+            <td>firefox</td>
+            <td><img src="firefox.jpg" alt="screenshot the playground by firefox"></td>
+          </tr>
+          <tr>
+            <td>safari</td>
+            <td><img src="safari.jpg" alt="screenshot the playground by safari"></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer>
+    <h2>Reference</h2>
+    <ul>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/mask-image">mask-image</a></li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-mask-composite">-webkit-mask-composite</a></li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/mask-composite">mask-composite</a></li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color">color notations</a></li>
+    </ul>
+  </footer>
+
+</body>
+</html>
