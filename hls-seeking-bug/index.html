@@ -1,0 +1,73 @@
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safari hls seeking bug when tab switch always hurts my work</title>
+  <style>
+    #video-box {
+      position: relative;
+    }
+    #video-box > time#video-current-time {
+      position: absolute;
+      top: 3rem;
+      left: 5rem;
+      background-color: aliceblue;
+      color: indigo;
+      opacity: 0.8;
+      font-size: 2rem;
+      pointer-events: none;
+      user-select: none;
+      border: 3px dotted indigo;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Safari hls seeking bug when tab switch</h1>
+  </header>
+  <main>
+    <section>
+      <h2>Explanation</h2>
+      <p>Open 2 tabs and switch both, the playback will seeking forward to unexpected position.</p>
+      <h3>Expected</h3>
+      <p>The playback can keep the original speed or resume from tab <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event" target="_blank" rel="noopener noreferrer"><code>visibilitychange</code></a></p>
+      <h3>Actual</h3>
+      <p>The playback seeks forward about a few minutes when switch tabs</p>
+      <h3>Environment</h3>
+      <p>Safari iOS, iPadOS</p>
+    </section>
+    <section>
+      <h2>Playground</h2>
+      <p>Your user agent: <script>document.write(navigator.userAgent);</script></p>
+      <div id="video-box">
+        <video id="video" src="https://test-streams.mux.dev/x36xhzz/url_6/193039199_mp4_h264_aac_hq_7.m3u8" muted autoplay controls></video>
+        <time id="video-current-time"></output>
+      </div>
+      <script>
+        const videoEl = document.getElementById('video');
+        const timeEl = document.getElementById('video-current-time');
+        const divmod = (a, b) => [(a - a % b) / b, a % b];
+        videoEl.ontimeupdate = (e) => {
+          const t = videoEl.currentTime;
+          const [m, ss] = divmod(t, 60);
+          const [hh, mm] = divmod(m, 60);
+          timeEl.textContent = [hh, mm, ss].map((it) => String(Math.floor(it)).padStart(2, '0')).join(':');
+        };
+      </script>
+    </section>
+    <section>
+      <h2>Demo</h2>
+      <video src="demo.mp4" style="height: 400px;" muted autoplay controls></video>
+    </section>
+  </main>
+  <footer>
+    <h2>Reference</h2>
+    <ul>
+      <li>?</li>
+    </ul>
+  </footer>
+
+</body>
+</html>
