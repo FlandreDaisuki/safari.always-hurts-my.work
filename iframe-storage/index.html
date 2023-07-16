@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safari iframe storage always hurts my work</title>
+  <style>
+    ul#exp-link-list {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .iframe-box {
+      width: 100%; height: 40vh;
+      position: relative;
+      border: 2px solid darkorange;
+    }
+    iframe {
+      width: 100%; height: 100%;
+      box-sizing: border-box;
+      border: 2px solid darkblue;
+    }
+    table#result {
+      border-collapse: collapse;
+    }
+    table#result :is(th, td) {
+      border: 1px solid;
+      border-collapse: collapse;
+    }
+    </style>
+</head>
+<body>
+  <header>
+    <h1>Safari iframe storage issue</h1>
+  </header>
+  <main>
+    <section>
+      <h2>Explanation</h2>
+      <p>For security issue, browsers will block different main frames to access the same iframe localStorage. However, the same main frame should keep its own iframe localStorage.</p>
+      <h3>Expected</h3>
+      <p>We assume that page X are embedded by site A & site B. There are some steps to do:</p>
+      <ol>
+        <li>Go to site A and do some actions to change localStorage in page X</li>
+        <li>Close site A (close browser / webview) completely</li>
+        <li>open site A to see the changes in embedded page X</li>
+        <li>open site B to see the changes in embedded page X</li>
+        <li>open page X to see the changes</li>
+      </ol>
+      <p>I expect there are data when revisit the site A.</p>
+      <h3>Actual</h3>
+      <p>In iOS webview, there is no data changes when revisit the site A.</p>
+      <h3>Environment</h3>
+      <p>Safari ~</p>
+    </section>
+    <section>
+      <h2>Playground</h2>
+      <p>Your user agent: <script>document.write(navigator.userAgent);</script></p>
+      <p>There are 3 pages that you can do experiment.</p>
+      <ul id="exp-link-list">
+        <li><a href="https://safari-iframe-storage.always-hurts-my.work/">site A</a></li>
+        <li><a href="https://safari-iframe-storage.will-hurt-your.work/">site B</a></li>
+        <li><a href="https://safari-iframe-storage-always-hurts-my-work.pages.dev/storage.html">page X</a></li>
+      </ul>
+
+      <hr/>
+
+      <h3>
+      <script>
+        if(location.hostname === 'safari-iframe-storage.always-hurts-my.work' && location.pathname === '/') { document.write('Site A'); }
+        else if(location.hostname === 'safari-iframe-storage.will-hurt-your.work' && location.pathname === '/') { document.write('Site B'); }
+        else { document.write('Site unknown'); }
+      </script>
+      </h3>
+      <div class="iframe-box">
+        <iframe src="https://safari-iframe-storage-always-hurts-my-work.pages.dev/storage.html" frameborder="0"></iframe>
+      </div>
+    </section>
+    <section>
+      <h2>Result Matrix</h2>
+      <dl>
+        <dt>✅</dt>
+        <dd>save ok, load ok</dd>
+        <dt>⭕</dt>
+        <dd>save ok, load empty</dd>
+        <dt>⚠️</dt>
+        <dd>throw <code>DOMException</code></dd>
+      </dl>
+      <table id="result">
+        <thead>
+          <tr>
+            <th>\</th>
+            <th>A->A</th>
+            <th>A->B</th>
+            <th>A->X</th>
+            <th>X->A</th>
+            <th>X->X</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Desktop Firefox non-private</th>
+            <th>✅</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>✅</th>
+          </tr>
+          <tr>
+            <th>Desktop Firefox private</th>
+            <th>✅ (revisit tab)</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>✅ (revisit tab)</th>
+          </tr>
+          <tr>
+            <th>Desktop Chromium non-incognito</th>
+            <th>✅</th>
+            <th>✅</th>
+            <th>✅</th>
+            <th>✅</th>
+            <th>✅</th>
+          </tr>
+          <tr>
+            <th>Desktop Chromium incognito</th>
+            <th>⚠️</th>
+            <th>⚠️</th>
+            <th>⚠️</th>
+            <th>⚠️</th>
+            <th>✅ (revisit tab)</th>
+          </tr>
+          <tr>
+            <th>Desktop Safari non-private</th>
+            <th>✅ (revisit tab) ⭕ (relaunch browser)</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>✅ (revisit tab) ✅ (relaunch browser)</th>
+          </tr>
+          <tr>
+            <th>Desktop Safari private</th>
+            <th>⭕ (revisit tab)</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+          </tr>
+          <tr>
+            <th>Mobile Safari non-private</th>
+            <th>✅ (revisit tab) ⭕ (relaunch browser)</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>✅ (revisit tab) ✅ (relaunch browser)</th>
+          </tr>
+          <tr>
+            <th>Mobile Safari private</th>
+            <th>⭕ (revisit tab)</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕ (revisit tab)</th>
+          </tr>
+          <tr>
+            <th>Mobile iOS webview (Line)</th>
+            <th>✅ (revisit page) ✅ (revisit webview) ⭕ (relaunch app)</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>⭕</th>
+            <th>✅ (revisit page) ✅ (revisit webview) ✅ (relaunch app)</th>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer>
+    <h2>Reference</h2>
+    <ul>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/Privacy/State_Partitioning" target="_blank" rel="noopener noreferrer">State Partitioning | MDN</a></li>
+      <li><a href="https://stackoverflow.com/a/63226070" target="_blank" rel="noopener noreferrer">DOMException: Failed to read the 'localStorage' property from 'Window': In Chrome Incognito mode and running in Iframe | Stack Overflow</a></li>
+      <li><a href="https://stackoverflow.com/a/52897329" target="_blank" rel="noopener noreferrer">Persistent local storage in iOS Safari issues | Stack Overflow</a></li>
+    </ul>
+  </footer>
+
+</body>
+</html>

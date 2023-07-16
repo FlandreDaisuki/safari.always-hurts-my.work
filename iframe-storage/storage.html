@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safari iframe storage always hurts my work (child frame)</title>
+  <style>
+  html, body{
+    margin: 0;
+  }
+  ul#exp-link-list {
+    display: flex;
+    gap: 1.5rem;
+  }
+  </style>
+</head>
+<body>
+  <h1>Page X</h1>
+
+  <p>Your user agent: <script>document.write(navigator.userAgent);</script></p>
+  <p>There are 3 pages that you can do experiment.</p>
+  <ul id="exp-link-list">
+    <li><a href="https://safari-iframe-storage.always-hurts-my.work/">site A</a></li>
+    <li><a href="https://safari-iframe-storage.will-hurt-your.work/">site B</a></li>
+    <li><a href="https://safari-iframe-storage-always-hurts-my-work.pages.dev/storage.html">page X</a></li>
+  </ul>
+
+  <fieldset>
+    <legend>Save to localStorage</legend>
+    <label for="storage-key">Key</label>
+    <input type="text" id="storage-key">
+    <label for="storage-value">Value</label>
+    <input type="text" id="storage-value">
+  </fieldset>
+  <fieldset>
+    <button id="save-btn">Save</button>
+    <button id="clear-btn">Clear</button>
+  </fieldset>
+  <pre id="storage-results"></pre>
+
+  <script>
+  const $ = document.querySelector.bind(document);
+  const render = () => {
+    $('#storage-results').textContent = JSON.stringify(localStorage, '', 2);
+  }
+  $('#save-btn').onclick = () => {
+    localStorage.setItem($('#storage-key').value, $('#storage-value').value);
+    render();
+  }
+  $('#clear-btn').onclick = () => {
+    localStorage.clear();
+    render();
+  }
+  window.onload = render;
+  </script>
+</body>
+</html>
