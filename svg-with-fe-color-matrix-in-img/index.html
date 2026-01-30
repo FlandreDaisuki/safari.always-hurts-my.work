@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safari svg with feColorMatrix in &lt;img&gt; always hurts my work</title>
+  <style>
+    summary {
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Safari svg with feColorMatrix in &lt;img&gt; always hurts my work</h1>
+  </header>
+  <main>
+    <section>
+      <h2>Explanation</h2>
+      <p>Put a svg with <code>feColorMatrix</code> filter in <code>&lt;img&gt;</code> will cause serious resolution
+        problem.</p>
+      <h3>Expected</h3>
+      <p>Keep the resolution in all following situation:</p>
+      <ol>
+        <li>svg with fill color</li>
+        <li>svg with fill color and <code>feColorMatrix</code> filter</li>
+        <li>img element with the second svg</li>
+      </ol>
+      <h3>Actual</h3>
+      <p>The resolution svg getting worse when apply <code>feColorMatrix</code> filter and becomes shitty on the third
+        condition.</p>
+      <h3>Environment</h3>
+      <p>Safari 18.3 ~</p>
+    </section>
+    <section>
+      <h2>Playground</h2>
+      <p>Your user agent:
+        <script>document.write(navigator.userAgent);</script>
+      </p>
+      <table>
+        <tr>
+          <th>svg + fill</th>
+          <th>svg + <code>feColorMatrix</code> filter</th>
+          <th>img + svg + <code>feColorMatrix</code> filter</th>
+        </tr>
+        <tr>
+          <td>
+            <svg width="50" height="25" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="50" cy="25" rx="50" ry="25" fill="#4d635f" />
+            </svg>
+          </td>
+          <td>
+            <svg id="problem-svg" width="50" height="25" viewBox="0 0 100 50" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <g filter="url(#filter1)">
+                <ellipse cx="50" cy="25" rx="50" ry="25" fill="black" />
+              </g>
+              <defs>
+                <filter id="filter1" x="0" y="0" width="100" height="50" color-interpolation-filters="sRGB">
+                  <feColorMatrix type="matrix" values="0 0 0 0 0.300181 0 0 0 0 0.389861 0 0 0 0 0.373253 0 0 0 1 0" />
+                </filter>
+              </defs>
+            </svg>
+          </td>
+          <td><img id="img-container" alt=""></td>
+        </tr>
+      </table>
+      <style>
+        table :is(img, svg) {
+          transform: scale(5);
+          transform-origin: center;
+          display: inline-block;
+        }
+        table {
+          border-collapse: collapse;
+
+          td, th {
+            border: 1px solid black;
+            box-sizing: border-box;
+            padding: 16px;
+          }
+          td {
+            width: 275px;
+            height: 150px;
+            text-align: center;
+          }
+        }
+      </style>
+      <script>
+        const imgEl = document.querySelector('#img-container');
+        const svgEl = document.querySelector('#problem-svg');
+        imgEl.src = 'data:image/svg+xml;base64,' + window.btoa(new XMLSerializer().serializeToString(svgEl));
+      </script>
+    </section>
+    <section>
+      <h2>Screenshot</h2>
+      <details>
+        <summary>Safari</summary>
+        <img src="safari.jpg" alt="safari" style="width: 1000px;">
+      </details>
+      <details>
+        <summary>Chrome</summary>
+        <img src="chrome.jpg" alt="chrome" style="width: 1140px;">
+      </details>
+      <details>
+        <summary>Firefox</summary>
+        <img src="firefox.jpg" alt="firefox" style="width: 905px;">
+      </details>
+    </section>
+  </main>
+  <footer>
+    <h2>Reference</h2>
+    <ul>
+      <li></li>
+    </ul>
+  </footer>
+
+</body>
+
+</html>

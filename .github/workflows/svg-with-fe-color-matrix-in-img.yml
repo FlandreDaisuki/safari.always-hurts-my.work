@@ -1,0 +1,34 @@
+name: svg-with-fe-color-matrix-in-img
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - svg-with-fe-color-matrix-in-img/**
+      - .github/workflows/svg-with-fe-color-matrix-in-img.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: svg-with-fe-color-matrix-in-img
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          DEPLOY_PROJECT_NAME: safari-svg-with-fe-color-matrix-always-hurts-my-work
+          DEPLOY_BRANCH: master
+        run: |
+          npx wrangler pages deploy . \
+          --project-name "${DEPLOY_PROJECT_NAME}" \
+          --branch "${DEPLOY_BRANCH}" \
+          --commit-dirty=true
